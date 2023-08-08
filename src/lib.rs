@@ -8,43 +8,37 @@ use kdl::{KdlDocument, KdlEntry, KdlNode, KdlValue};
 pub struct KDL;
 
 fn build_document(document: &KdlDocument) -> Value {
-    eprintln!(
-        "{} -> {}",
+    let cols: Vec<String> = document
+        .nodes()
+        .iter()
+        .map(|node| node.name().to_string())
+        .collect();
+    let vals = document.nodes().iter().map(build_node).collect();
+    let span = Span::new(
         document.span().offset(),
-        document.span().offset() + document.len()
+        document.span().offset() + document.len(),
     );
 
-    for node in document.nodes() {
-        print_node(node);
-    }
-
-    Value::Nothing {
-        span: Span::new(
-            document.span().offset(),
-            document.span().offset() + document.len(),
-        ),
-    }
+    Value::record(cols, vals, span)
 }
 
-fn print_node(node: &KdlNode) {
-    eprintln!(
-        "{}: {} -> {} ({}, {})",
-        node.name(),
-        node.span().offset(),
-        node.span().offset() + node.len(),
-        node.entries().len(),
-        match node.children() {
-            Some(_) => true,
-            None => false,
-        },
+fn build_node(node: &KdlNode) -> Value {
+    let entries = Value::list(
+        node.entries().iter().map(build_entry).collect(),
+        Span::unknown(),
     );
 
-    for entry in node.entries() {
-        build_entry(entry);
-    }
+    let children = match node.children() {
+        Some(children) => build_document(children),
+        None => Value::nothing(Span::unknown()),
+    };
 
-    if let Some(children) = node.children() {
-        let _ = build_document(children);
+    let span = Span::new(node.span().offset(), node.span().offset() + node.len());
+
+    Value::Record {
+        cols: vec!["entries".to_string(), "children".to_string()],
+        vals: vec![entries, children],
+        span,
     }
 }
 
