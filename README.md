@@ -20,3 +20,5 @@ see [`examples.md`](examples.md)
 - [ ] implement `to kdl` and support in `save foo.kdl`
 - [ ] add tests
 - [ ] add proper error support
+- [ ] support type annotations
+- [ ] preserve comments
