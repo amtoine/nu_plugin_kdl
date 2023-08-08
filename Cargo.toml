@@ -1,19 +1,19 @@
 [package]
-authors = ["The Nushell Project Developers"]
-description = "A version incrementer plugin for Nushell"
-repository = "https://github.com/nushell/nushell/tree/main/crates/nu_plugin_example"
+authors = ["@amtoine"]
+description = "Add support for the KDL data format to Nushell."
+repository = "https://github.com/amtoine/nu_plugin_kdl"
 edition = "2021"
-license = "MIT"
-name = "nu_plugin_example"
+license = "GPLv3"
+name = "nu_plugin_kdl"
 version = "0.83.2"
 
 [[bin]]
-name = "nu_plugin_example"
+name = "nu_plugin_kdl"
 bench = false
 
 [lib]
 bench = false
 
 [dependencies]
-nu-plugin = { path="../nu-plugin", version = "0.83.2" }
-nu-protocol = { path="../nu-protocol", version = "0.83.2", features = ["plugin"]}
+nu-plugin = { path="nu-plugin", version = "0.83.2" }
+nu-protocol = { path="nu-protocol", version = "0.83.2", features = ["plugin"]}
