@@ -23,10 +23,7 @@ fn build_document(document: &KdlDocument) -> Value {
 }
 
 fn build_node(node: &KdlNode) -> Value {
-    let entries = Value::list(
-        node.entries().iter().map(build_entry).collect(),
-        Span::unknown(),
-    );
+    let entries: Vec<Value> = node.entries().iter().map(build_entry).collect();
 
     let span = Span::new(node.span().offset(), node.span().offset() + node.len());
 
@@ -34,16 +31,28 @@ fn build_node(node: &KdlNode) -> Value {
         let children = build_document(children);
 
         if entries.is_empty() {
-            children
+            return children;
+        }
+
+        let entries = if entries.len() == 1 {
+            entries[0].clone()
         } else {
-            Value::Record {
-                cols: vec!["entries".to_string(), "children".to_string()],
-                vals: vec![entries, children],
-                span,
-            }
+            Value::list(entries, Span::unknown())
+        };
+
+        Value::Record {
+            cols: vec!["entries".to_string(), "children".to_string()],
+            vals: vec![entries, children],
+            span,
         }
     } else {
-        entries
+        if entries.is_empty() {
+            Value::nothing(Span::unknown())
+        } else if entries.len() == 1 {
+            entries[0].clone()
+        } else {
+            Value::list(entries, Span::unknown())
+        }
     }
 }
 
