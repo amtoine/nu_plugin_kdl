@@ -64,5 +64,12 @@ mynode /-"commented" "not commented" /-key="value" /-{
 }'
 ] | each {|example|
     let result = $example | from kdl | table --expand
-    $"```nushell\n'($example)'\n```\n```\n($result)\n```"
+    [
+        "```nushell"
+        ("'" ++ $example ++ "'")
+        "```"
+        "```"
+        $result
+        "```"
+    ] | str join "\n"
 } | to text | ansi strip | save --force examples.md
