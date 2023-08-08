@@ -1,7 +1,7 @@
 use nu_plugin::LabeledError;
 use nu_protocol::{Span, Value};
 
-use kdl::{KdlDocument, KdlEntry, KdlNode, KdlValue};
+use kdl::{KdlDocument, KdlEntry, KdlNode, KdlValue, KdlIdentifier};
 use miette::SourceSpan;
 
 fn span(value: &Value) -> Result<SourceSpan, LabeledError> {
@@ -37,7 +37,9 @@ pub(crate) fn build_document(document: &Value) -> Result<KdlDocument, LabeledErr
 }
 
 fn build_node(name: &str, node: &Value) -> Result<KdlNode, LabeledError> {
-    let mut kdl_node = KdlNode::new(name);
+    let mut identifier = KdlIdentifier::from(name);
+    identifier.set_repr(name);
+    let mut kdl_node = KdlNode::new(identifier);
 
     kdl_node.set_span(span(node)?);
 
