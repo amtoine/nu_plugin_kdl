@@ -66,7 +66,7 @@ mynode /-"commented" "not commented" /-key="value" /-{
     let result = $example | from kdl | table --expand
     [
         "```nushell"
-        ("'" ++ $example ++ "'")
+        ("> '" ++ $example ++ "' | from kdl")
         "```"
         "```"
         $result
