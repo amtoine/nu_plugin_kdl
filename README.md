@@ -19,6 +19,6 @@ see [`examples.md`](examples.md)
 - [x] implement `from kdl` and support in `open foo.kdl`
 - [ ] implement `to kdl` and support in `save foo.kdl`
 - [ ] add tests
-- [ ] add proper error support
+- [x] add proper error support
 - [ ] support type annotations
 - [ ] preserve comments

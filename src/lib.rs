@@ -10,11 +10,21 @@ pub struct KDL;
 
 impl KDL {
     pub fn from(&self, _call: &EvaluatedCall, input: &Value) -> Result<Value, LabeledError> {
-        let doc: KdlDocument = input
+        let doc = match input
             .as_string()
             .expect("input is not a string")
-            .parse()
-            .expect("failed to parse KDL");
+            .parse::<KdlDocument>()
+        {
+            Ok(document) => document,
+            Err(err) => {
+                return Err(LabeledError {
+                    label: err.label.unwrap_or("invalid format").to_string(),
+                    msg: err.help.unwrap_or("input to `kdl from` has invalid KDL format").to_string(),
+                    span: None,
+                })
+            }
+        };
+
         Ok(from::parse_document(&doc))
     }
 
