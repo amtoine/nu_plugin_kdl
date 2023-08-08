@@ -105,6 +105,7 @@ fn build_entry(entry: &Value) -> Result<KdlEntry, LabeledError> {
     };
 
     entry.set_span(span);
+    entry.set_leading(" ");
 
     Ok(entry)
 }
