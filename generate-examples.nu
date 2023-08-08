@@ -72,4 +72,4 @@ mynode /-"commented" "not commented" /-key="value" /-{
         $result
         "```"
     ] | str join "\n"
-} | to text | ansi strip | save --force examples.md
+} | str join "\n---\n" | ansi strip | save --force examples.md
