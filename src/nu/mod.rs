@@ -7,7 +7,7 @@ impl Plugin for KDL {
         vec![
             PluginSignature::build("from kdl")
                 .usage("TODO")
-                .input_output_type(Type::String, Type::Any)
+                .input_output_type(Type::String, Type::Record(vec![]))
                 .plugin_examples(vec![PluginExample {
                     example: "open foo.kdl | from kdl".into(),
                     description: "TODO".into(),
@@ -16,7 +16,7 @@ impl Plugin for KDL {
                 .category(Category::Experimental),
             PluginSignature::build("to kdl")
                 .usage("TODO")
-                .input_output_type(Type::Any, Type::String)
+                .input_output_type(Type::Record(vec![]), Type::String)
                 .plugin_examples(vec![PluginExample {
                     example: "{foo: [1, 2, 3]} | to kdl".into(),
                     description: "TODO".into(),
