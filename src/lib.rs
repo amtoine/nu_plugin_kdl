@@ -93,4 +93,9 @@ impl KDL {
             .expect("failed to parse KDL");
         Ok(build_document(&doc))
     }
+
+    pub fn to(&self, _call: &EvaluatedCall, _input: &Value) -> Result<Value, LabeledError> {
+        // FIXME: use a real span
+        Ok(Value::string("".to_string(), Span::unknown()))
+    }
 }
