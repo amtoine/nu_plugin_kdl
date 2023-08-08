@@ -4,14 +4,23 @@ use nu_protocol::{Span, Value};
 use kdl::{KdlDocument, KdlEntry, KdlNode, KdlValue};
 use miette::SourceSpan;
 
+fn span(value: &Value) -> Result<SourceSpan, LabeledError> {
+    match value.span() {
+        Ok(Span { start, end, .. }) => Ok(SourceSpan::new(start.into(), (end - start).into())),
+        Err(_) => {
+            return Err(LabeledError {
+                label: "internal error".to_string(),
+                msg: "Nushell value does not have a span".to_string(),
+                span: None,
+            })
+        }
+    }
+}
+
 pub(crate) fn build_document(document: &Value) -> Result<KdlDocument, LabeledError> {
     let mut doc = KdlDocument::new();
 
-    let span = match document.span() {
-        Ok(Span { start, end, .. }) => SourceSpan::new(start.into(), end.into()),
-        Err(_) => SourceSpan::new(0.into(), 0.into()),
-    };
-    doc.set_span(span);
+    doc.set_span(span(document)?);
 
     // TODO: use real data here
     doc.set_leading("");
@@ -39,11 +48,7 @@ fn build_node(name: &str, node: &Value) -> Result<KdlNode, LabeledError> {
     kdl_node.set_leading("");
     kdl_node.set_ty("");
 
-    let span = match node.span() {
-        Ok(Span { start, end, .. }) => SourceSpan::new(start.into(), end.into()),
-        Err(_) => SourceSpan::new(0.into(), 0.into()),
-    };
-    kdl_node.set_span(span);
+    kdl_node.set_span(span(node)?);
 
     kdl_node.clear_entries();
     kdl_node.clear_children();
@@ -67,10 +72,7 @@ fn build_node(name: &str, node: &Value) -> Result<KdlNode, LabeledError> {
 }
 
 fn build_entry(entry: &Value) -> Result<KdlEntry, LabeledError> {
-    let span = match entry.span() {
-        Ok(Span { start, end, .. }) => SourceSpan::new(start.into(), end.into()),
-        Err(_) => SourceSpan::new(0.into(), 0.into()),
-    };
+    let span = span(entry)?;
 
     let mut entry = match entry {
         Value::Record { cols, vals, .. } => {
