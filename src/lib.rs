@@ -37,6 +37,7 @@ fn build_node(node: &KdlNode) -> Value {
         let entries = if entries.len() == 1 {
             entries[0].clone()
         } else {
+            // FIXME: use a real span
             Value::list(entries, Span::unknown())
         };
 
@@ -47,10 +48,12 @@ fn build_node(node: &KdlNode) -> Value {
         }
     } else {
         if entries.is_empty() {
+            // FIXME: use a real span
             Value::nothing(Span::unknown())
         } else if entries.len() == 1 {
             entries[0].clone()
         } else {
+            // FIXME: use a real span
             Value::list(entries, Span::unknown())
         }
     }
