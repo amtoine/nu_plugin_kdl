@@ -7,13 +7,13 @@ use kdl::{KdlDocument, KdlEntry, KdlNode, KdlValue};
 
 pub struct KDL;
 
-fn build_document(document: &KdlDocument) -> Value {
+fn parse_document(document: &KdlDocument) -> Value {
     let cols: Vec<String> = document
         .nodes()
         .iter()
         .map(|node| node.name().to_string())
         .collect();
-    let vals = document.nodes().iter().map(build_node).collect();
+    let vals = document.nodes().iter().map(parse_node).collect();
     let span = Span::new(
         document.span().offset(),
         document.span().offset() + document.len(),
@@ -22,13 +22,13 @@ fn build_document(document: &KdlDocument) -> Value {
     Value::record(cols, vals, span)
 }
 
-fn build_node(node: &KdlNode) -> Value {
-    let entries: Vec<Value> = node.entries().iter().map(build_entry).collect();
+fn parse_node(node: &KdlNode) -> Value {
+    let entries: Vec<Value> = node.entries().iter().map(parse_entry).collect();
 
     let span = Span::new(node.span().offset(), node.span().offset() + node.len());
 
     if let Some(children) = node.children() {
-        let children = build_document(children);
+        let children = parse_document(children);
 
         if entries.is_empty() {
             return children;
@@ -59,7 +59,7 @@ fn build_node(node: &KdlNode) -> Value {
     }
 }
 
-fn build_entry(entry: &KdlEntry) -> Value {
+fn parse_entry(entry: &KdlEntry) -> Value {
     let span = Span::new(entry.span().offset(), entry.span().offset() + entry.len());
 
     let value = match entry.value() {
@@ -91,7 +91,7 @@ impl KDL {
             .expect("input is not a string")
             .parse()
             .expect("failed to parse KDL");
-        Ok(build_document(&doc))
+        Ok(parse_document(&doc))
     }
 
     pub fn to(&self, _call: &EvaluatedCall, _input: &Value) -> Result<Value, LabeledError> {
