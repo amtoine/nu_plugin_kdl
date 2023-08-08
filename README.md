@@ -12,6 +12,9 @@ cargo build --release
 register target/release/nu_plugin_kdl
 ```
 
+## Examples
+see [`examples.md`](examples.md)
+
 ## TODO
 - [x] implement `from kdl` and support in `open foo.kdl`
 - [ ] implement `to kdl` and support in `save foo.kdl`
