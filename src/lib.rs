@@ -7,7 +7,7 @@ use kdl::{KdlDocument, KdlEntry, KdlNode, KdlValue};
 
 pub struct KDL;
 
-fn build_document(document: &KdlDocument) -> Result<Value, LabeledError> {
+fn build_document(document: &KdlDocument) -> Value {
     eprintln!(
         "{} -> {}",
         document.span().offset(),
@@ -18,12 +18,12 @@ fn build_document(document: &KdlDocument) -> Result<Value, LabeledError> {
         print_node(node);
     }
 
-    Ok(Value::Nothing {
+    Value::Nothing {
         span: Span::new(
             document.span().offset(),
             document.span().offset() + document.len(),
         ),
-    })
+    }
 }
 
 fn print_node(node: &KdlNode) {
@@ -80,6 +80,6 @@ impl KDL {
             .expect("input is not a string")
             .parse()
             .expect("failed to parse KDL");
-        build_document(&doc)
+        Ok(build_document(&doc))
     }
 }
