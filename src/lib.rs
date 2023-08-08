@@ -3,7 +3,7 @@ mod nu;
 use nu_plugin::{EvaluatedCall, LabeledError};
 use nu_protocol::{Span, Value};
 
-use kdl::{KdlDocument, KdlEntry, KdlNode};
+use kdl::{KdlDocument, KdlEntry, KdlNode, KdlValue};
 
 pub struct KDL;
 
@@ -40,7 +40,7 @@ fn print_node(node: &KdlNode) {
     );
 
     for entry in node.entries() {
-        print_entry(entry);
+        build_entry(entry);
     }
 
     if let Some(children) = node.children() {
@@ -48,14 +48,29 @@ fn print_node(node: &KdlNode) {
     }
 }
 
-fn print_entry(entry: &KdlEntry) {
-    eprintln!(
-        "{:?}: {} ({} -> {})",
-        entry.name(),
-        entry.value(),
-        entry.span().offset(),
-        entry.span().offset() + entry.len(),
-    );
+fn build_entry(entry: &KdlEntry) -> Value {
+    let span = Span::new(entry.span().offset(), entry.span().offset() + entry.len());
+
+    let value = match entry.value() {
+        KdlValue::RawString(val) => Value::string(val.to_string(), span),
+        KdlValue::String(val) => Value::string(val.to_string(), span),
+        KdlValue::Base2(val) => Value::int(*val, span),
+        KdlValue::Base8(val) => Value::int(*val, span),
+        KdlValue::Base10(val) => Value::int(*val, span),
+        KdlValue::Base16(val) => Value::int(*val, span),
+        KdlValue::Base10Float(val) => Value::float(*val, span),
+        KdlValue::Bool(val) => Value::bool(*val, span),
+        KdlValue::Null => Value::nothing(span),
+    };
+
+    match entry.name() {
+        Some(name) => Value::Record {
+            cols: vec![name.value().to_string()],
+            vals: vec![value],
+            span,
+        },
+        None => value,
+    }
 }
 
 impl KDL {
