@@ -46,7 +46,6 @@ fn build_node(name: &str, node: &Value) -> Result<KdlNode, LabeledError> {
     // TODO: use real data
     kdl_node.set_trailing("");
     kdl_node.set_leading("");
-    kdl_node.set_ty("");
 
     kdl_node.set_span(span(node)?);
 
@@ -114,7 +113,6 @@ fn build_entry(entry: &Value) -> Result<KdlEntry, LabeledError> {
     entry.set_span(span);
 
     // TODO: use true KdlEntry values here
-    entry.set_ty("");
     entry.set_leading("");
     entry.set_trailing("");
 
