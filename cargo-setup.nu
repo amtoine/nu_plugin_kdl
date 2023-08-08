@@ -11,7 +11,7 @@ def main [nushell: path]: nothing -> nothing {
         | update dependencies.nu-protocol {
             path: ($nushell | path join "crates" "nu-protocol")
             version: $version
-            features: ["nu-plugin"]
+            features: ["plugin"]
         }
         | save --force Cargo.toml
 }
