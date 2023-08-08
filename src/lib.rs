@@ -28,17 +28,22 @@ fn build_node(node: &KdlNode) -> Value {
         Span::unknown(),
     );
 
-    let children = match node.children() {
-        Some(children) => build_document(children),
-        None => Value::nothing(Span::unknown()),
-    };
-
     let span = Span::new(node.span().offset(), node.span().offset() + node.len());
 
-    Value::Record {
-        cols: vec!["entries".to_string(), "children".to_string()],
-        vals: vec![entries, children],
-        span,
+    if let Some(children) = node.children() {
+        let children = build_document(children);
+
+        if entries.is_empty() {
+            children
+        } else {
+            Value::Record {
+                cols: vec!["entries".to_string(), "children".to_string()],
+                vals: vec![entries, children],
+                span,
+            }
+        }
+    } else {
+        entries
     }
 }
 
