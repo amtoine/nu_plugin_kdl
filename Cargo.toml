@@ -4,6 +4,7 @@ name = "nu_plugin_kdl"
 
 [dependencies]
 kdl = "4.6.0"
+miette = "5.10.0"
 
 [dependencies.nu-plugin]
 path = ""
