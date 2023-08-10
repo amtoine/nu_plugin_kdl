@@ -82,12 +82,15 @@ fn build_entry(entry: &Value) -> Result<KdlEntry, LabeledError> {
             if cols.len() != 1 {
                 return Err(LabeledError {
                     label: "invalid input".to_string(),
-                    msg: "entry should be either a record with one key".to_string(),
+                    msg: "entry is a record but has more than one key".to_string(),
                     span: entry.span().ok(),
                 });
             }
 
-            let val = match &vals[0] {
+            let value = &vals[0];
+            let name = &cols[0];
+
+            let val = match value {
                 Value::String { val, .. } => KdlValue::String(val.to_string()),
                 Value::Int { val, .. } => KdlValue::Base10(*val),
                 Value::Float { val, .. } => KdlValue::Base10Float(*val),
@@ -98,12 +101,12 @@ fn build_entry(entry: &Value) -> Result<KdlEntry, LabeledError> {
                         label: "invalid input".to_string(),
                         msg: "value not supported, expected string, int, float, bool or null"
                             .to_string(),
-                        span: vals[0].span().ok(),
+                        span: value.span().ok(),
                     });
                 }
             };
 
-            KdlEntry::new_prop(cols[0].clone(), val.clone())
+            KdlEntry::new_prop(name.clone(), val.clone())
         }
         Value::String { val, .. } => KdlEntry::new(KdlValue::String(val.to_string())),
         Value::Int { val, .. } => KdlEntry::new(KdlValue::Base10(*val)),
@@ -113,7 +116,7 @@ fn build_entry(entry: &Value) -> Result<KdlEntry, LabeledError> {
         _ => {
             return Err(LabeledError {
                 label: "invalid input".to_string(),
-                msg: "value not supported for an entry, expected string, int, float, bool or null".to_string(),
+                msg: "value not supported for an entry, expected record, string, int, float, bool or null".to_string(),
                 span: None,
             })
         }
