@@ -27,7 +27,7 @@ pub(crate) fn build_document(document: &Value) -> Result<KdlDocument, LabeledErr
     let Value::Record { cols, vals, .. } = document else {
         return Err(LabeledError {
             label: "invalid input".to_string(),
-            msg: "value not supported, expected record".to_string(),
+            msg: "value not supported for a document, expected record".to_string(),
             span: None
         })
     };
@@ -64,7 +64,7 @@ fn build_node(name: &str, node: &Value) -> Result<KdlNode, LabeledError> {
         _ => {
             return Err(LabeledError {
                 label: "invalid input".to_string(),
-                msg: "value not supported, expected list, record, string, int, float, bool or null"
+                msg: "value not supported for a node, expected list, record, string, int, float, bool or null"
                     .to_string(),
                 span: None,
             })
@@ -113,7 +113,7 @@ fn build_entry(entry: &Value) -> Result<KdlEntry, LabeledError> {
         _ => {
             return Err(LabeledError {
                 label: "invalid input".to_string(),
-                msg: "value not supported, expected string, int, float, bool or null".to_string(),
+                msg: "value not supported for an entry, expected string, int, float, bool or null".to_string(),
                 span: None,
             })
         }
