@@ -24,8 +24,13 @@ pub(crate) fn build_document(document: &Value) -> Result<KdlDocument, LabeledErr
 
     let nodes = doc.nodes_mut();
 
-    // TODO: implement the else branch
-    let Value::Record { cols, .. } = document else { todo!() };
+    let Value::Record { cols, .. } = document else {
+        return Err(LabeledError {
+            label: "invalid input".to_string(),
+            msg: "value not supported, expected record".to_string(),
+            span: None
+        })
+    };
 
     for col in cols {
         // FIXME: do not unwrap here
@@ -57,8 +62,14 @@ fn build_node(name: &str, node: &Value) -> Result<KdlNode, LabeledError> {
             }
         }
         // TODO: implement when node is a record, i.e. with children
-        // TODO: default arm
-        _ => todo!(),
+        _ => {
+            return Err(LabeledError {
+                label: "invalid input".to_string(),
+                msg: "value not supported, expected list, record, string, int, float, bool or null"
+                    .to_string(),
+                span: None,
+            })
+        }
     }
 
     Ok(kdl_node)
@@ -100,8 +111,13 @@ fn build_entry(entry: &Value) -> Result<KdlEntry, LabeledError> {
         Value::Float { val, .. } => KdlEntry::new(KdlValue::Base10Float(*val)),
         Value::Bool { val, .. } => KdlEntry::new(KdlValue::Bool(*val)),
         Value::Nothing { .. } => KdlEntry::new(KdlValue::Null),
-        // TODO: default arm
-        _ => todo!(),
+        _ => {
+            return Err(LabeledError {
+                label: "invalid input".to_string(),
+                msg: "value not supported, expected string, int, float, bool or null".to_string(),
+                span: None,
+            })
+        }
     };
 
     entry.set_span(span);
