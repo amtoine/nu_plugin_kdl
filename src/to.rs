@@ -24,7 +24,7 @@ pub(crate) fn build_document(document: &Value) -> Result<KdlDocument, LabeledErr
 
     let nodes = doc.nodes_mut();
 
-    let Value::Record { cols, .. } = document else {
+    let Value::Record { cols, vals, .. } = document else {
         return Err(LabeledError {
             label: "invalid input".to_string(),
             msg: "value not supported, expected record".to_string(),
@@ -32,8 +32,8 @@ pub(crate) fn build_document(document: &Value) -> Result<KdlDocument, LabeledErr
         })
     };
 
-    for col in cols {
-        let node = build_node(col, &document.get_data_by_key(col).unwrap())?;
+    for (col, val) in cols.iter().zip(vals) {
+        let node = build_node(col, val)?;
         nodes.push(node);
     }
 
