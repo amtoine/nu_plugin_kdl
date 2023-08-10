@@ -33,8 +33,7 @@ pub(crate) fn build_document(document: &Value) -> Result<KdlDocument, LabeledErr
     };
 
     for col in cols {
-        // FIXME: do not unwrap here
-        let node = build_node(col, &document.get_data_by_key(col).unwrap()).unwrap();
+        let node = build_node(col, &document.get_data_by_key(col).unwrap())?;
         nodes.push(node);
     }
 
@@ -54,11 +53,11 @@ fn build_node(name: &str, node: &Value) -> Result<KdlNode, LabeledError> {
     match node {
         Value::Nothing { .. } => {}
         Value::String { .. } | Value::Int { .. } | Value::Float { .. } | Value::Bool { .. } => {
-            entries.push(build_entry(node).unwrap())
+            entries.push(build_entry(node)?)
         }
         Value::List { vals, .. } => {
             for val in vals {
-                entries.push(build_entry(val).unwrap())
+                entries.push(build_entry(val)?)
             }
         }
         // TODO: implement when node is a record, i.e. with children
