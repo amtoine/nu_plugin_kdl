@@ -1,7 +1,7 @@
 use nu_plugin::LabeledError;
 use nu_protocol::{Span, Value};
 
-use kdl::{KdlDocument, KdlEntry, KdlNode, KdlValue, KdlIdentifier};
+use kdl::{KdlDocument, KdlEntry, KdlIdentifier, KdlNode, KdlValue};
 use miette::SourceSpan;
 
 fn span(value: &Value) -> Result<SourceSpan, LabeledError> {
