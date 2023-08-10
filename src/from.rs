@@ -18,39 +18,20 @@ pub(crate) fn parse_document(document: &KdlDocument) -> Value {
 }
 
 fn parse_node(node: &KdlNode) -> Value {
-    let entries: Vec<Value> = node.entries().iter().map(parse_entry).collect();
+    let mut entries: Vec<Value> = node.entries().iter().map(parse_entry).collect();
 
     let span = Span::new(node.span().offset(), node.span().offset() + node.len());
 
     if let Some(children) = node.children() {
-        let children = parse_document(children);
+        entries.push(parse_document(children))
+    }
 
-        if entries.is_empty() {
-            return children;
-        }
-
-        let entries = if entries.len() == 1 {
-            entries[0].clone()
-        } else {
-            // FIXME: use a real span
-            Value::list(entries, Span::unknown())
-        };
-
-        Value::Record {
-            cols: vec!["entries".to_string(), "children".to_string()],
-            vals: vec![entries, children],
-            span,
-        }
+    if entries.is_empty() {
+        Value::nothing(span)
+    } else if entries.len() == 1 {
+        entries[0].clone()
     } else {
-        if entries.is_empty() {
-            // FIXME: use a real span
-            Value::nothing(Span::unknown())
-        } else if entries.len() == 1 {
-            entries[0].clone()
-        } else {
-            // FIXME: use a real span
-            Value::list(entries, Span::unknown())
-        }
+        Value::list(entries, span)
     }
 }
 
