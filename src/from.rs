@@ -3,18 +3,32 @@ use nu_protocol::{Record, Span, Value};
 use kdl::{KdlDocument, KdlEntry, KdlNode, KdlValue};
 
 pub(crate) fn parse_document(document: &KdlDocument) -> Value {
-    let cols: Vec<String> = document
+    let table: Vec<Value> = document
         .nodes()
         .iter()
-        .map(|node| node.name().to_string())
+        .map(|node| {
+            let mut row = Record::new();
+            row.insert(
+                "node",
+                Value::string(
+                    node.name().to_string(),
+                    Span::new(
+                        node.name().span().offset(),
+                        node.name().span().offset() + node.name().len(),
+                    ),
+                ),
+            );
+            row.insert("value", parse_node(node));
+            let span = Span::new(node.span().offset(), node.span().offset() + node.len());
+            Value::record(row, span)
+        })
         .collect();
-    let vals = document.nodes().iter().map(parse_node).collect();
+
     let span = Span::new(
         document.span().offset(),
         document.span().offset() + document.len(),
     );
-
-    Value::record(Record::from_raw_cols_vals(cols, vals), span)
+    Value::list(table, span)
 }
 
 fn parse_node(node: &KdlNode) -> Value {
