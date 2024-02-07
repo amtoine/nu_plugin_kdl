@@ -1,4 +1,4 @@
-use nu_protocol::{Span, Value};
+use nu_protocol::{Record, Span, Value};
 
 use kdl::{KdlDocument, KdlEntry, KdlNode, KdlValue};
 
@@ -14,7 +14,7 @@ pub(crate) fn parse_document(document: &KdlDocument) -> Value {
         document.span().offset() + document.len(),
     );
 
-    Value::record(cols, vals, span)
+    Value::record(Record::from_raw_cols_vals(cols, vals), span)
 }
 
 fn parse_node(node: &KdlNode) -> Value {
@@ -51,11 +51,10 @@ fn parse_entry(entry: &KdlEntry) -> Value {
     };
 
     match entry.name() {
-        Some(name) => Value::Record {
-            cols: vec![name.value().to_string()],
-            vals: vec![value],
+        Some(name) => Value::record(
+            Record::from_raw_cols_vals(vec![name.value().to_string()], vec![value]),
             span,
-        },
+        ),
         None => value,
     }
 }
