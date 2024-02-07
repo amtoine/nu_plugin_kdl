@@ -1,38 +1,24 @@
 use nu_plugin::LabeledError;
-use nu_protocol::{Span, Value};
+use nu_protocol::Value;
 
 use kdl::{KdlDocument, KdlEntry, KdlIdentifier, KdlNode, KdlValue};
-use miette::SourceSpan;
-
-fn span(value: &Value) -> Result<SourceSpan, LabeledError> {
-    match value.span() {
-        Ok(Span { start, end, .. }) => Ok(SourceSpan::new(start.into(), (end - start).into())),
-        Err(_) => {
-            return Err(LabeledError {
-                label: "internal error".to_string(),
-                msg: "Nushell value does not have a span".to_string(),
-                span: None,
-            })
-        }
-    }
-}
 
 pub(crate) fn build_document(document: &Value) -> Result<KdlDocument, LabeledError> {
     let mut doc = KdlDocument::new();
 
-    doc.set_span(span(document)?);
+    doc.set_span(document.span());
 
     let nodes = doc.nodes_mut();
 
-    let Value::Record { cols, vals, .. } = document else {
+    let Value::Record { val: record, .. } = document else {
         return Err(LabeledError {
             label: "invalid input".to_string(),
             msg: "value not supported for a document, expected record".to_string(),
-            span: None
-        })
+            span: None,
+        });
     };
 
-    for (col, val) in cols.iter().zip(vals) {
+    for (col, val) in record.columns().zip(record.values()) {
         let node = build_node(col, val)?;
         nodes.push(node);
     }
@@ -45,7 +31,7 @@ fn build_node(name: &str, node: &Value) -> Result<KdlNode, LabeledError> {
     identifier.set_repr(name);
     let mut kdl_node = KdlNode::new(identifier);
 
-    kdl_node.set_span(span(node)?);
+    kdl_node.set_span(node.span());
 
     kdl_node.clear_entries();
     kdl_node.clear_children();
@@ -75,20 +61,20 @@ fn build_node(name: &str, node: &Value) -> Result<KdlNode, LabeledError> {
 }
 
 fn build_entry(entry: &Value) -> Result<KdlEntry, LabeledError> {
-    let span = span(entry)?;
+    let span = entry.span();
 
     let mut entry = match entry {
-        Value::Record { cols, vals, .. } => {
-            if cols.len() != 1 {
+        Value::Record { val: record, .. } => {
+            if record.len() != 1 {
                 return Err(LabeledError {
                     label: "invalid input".to_string(),
                     msg: "entry is a record but has more than one key".to_string(),
-                    span: entry.span().ok(),
+                    span: Some(span),
                 });
             }
 
-            let value = &vals[0];
-            let name = &cols[0];
+            let value = record.values().next().unwrap();
+            let name = record.columns().next().unwrap();
 
             let val = match value {
                 Value::String { val, .. } => KdlValue::String(val.to_string()),
@@ -101,7 +87,7 @@ fn build_entry(entry: &Value) -> Result<KdlEntry, LabeledError> {
                         label: "invalid input".to_string(),
                         msg: "value not supported, expected string, int, float, bool or null"
                             .to_string(),
-                        span: value.span().ok(),
+                        span: Some(value.span()),
                     });
                 }
             };
